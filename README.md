@@ -1,2 +1,2 @@
-### Advent Of Code - JS
+# Advent Of Code - JS
 
