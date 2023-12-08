@@ -10,7 +10,7 @@ const directions = [
 ]
 
 function isCharNumber(input) {
-  return !NaN(parseInt(input));
+  return !isNaN(parseInt(input));
 }
 
 function isCharDot(input) {
@@ -18,6 +18,9 @@ function isCharDot(input) {
 }
 
 function getChar(i, j, [y, x]) {
+  if (data[y + i] === undefined) {
+    return undefined;
+  }
   return data[y + i][x + j];
 }
 
@@ -30,34 +33,40 @@ for (let y = 0; y < data.length; y++) {
   let checkForSymbol = true;
 
   for (let x = 0; x < row.length; x++) {
-    const currentChar = get(y, x, [0, 0]);
+    const currentChar = getChar(y, x, [0, 0]);
     isNumber = isCharNumber(currentChar);
+    
+    if (isNumber) {
+      currentNumber += currentChar;
+    }
+    
+    // check if current number is a partnumber
+    if (isNumber && checkForSymbol) {
+      const isPartNumber = directions.reduce((acc, [dy, dx]) => {
+        const char = getChar(y, x, [dy, dx]);
+        return acc || !isCharNumber(char) && !isCharDot(char) && char !== undefined
+      }, false);
+      
+      if (isPartNumber) {
+        checkForSymbol = false;
+      }
+    } 
 
+    if (isNumber && !checkForSymbol) {
+      sum += parseInt(currentNumber);
+    }
+    
     if (!isNumber && !checkForSymbol) {
+      console.log(parseInt(currentNumber))
       sum += parseInt(currentNumber);
       currentNumber = '';
       checkForSymbol = true;
     }
 
-    // check if current number is a partnumber
-    if (isNumber && checkForSymbol) {
-      const isPartNumber = directions.reduce((acc, [dy, dx]) => {
-        const char = getChar(y, x, [dy, dx]);
-
-        return acc || !isCharNumber(char) && !isCharDot(char) && char !== undefined
-      }, false);
-
-      if (isPartNumber) {
-        currentNumber += currentChar;
-        checkForSymbol = false;
-      }
-    }
-
-    if (isCharDot(currentChar)) {
-      sum += parseInt(currentNumber);
+    if (!isNumber) {
       currentNumber = '';
+      checkForSymbol = true;
     }
-
   }
 }
 
